@@ -29,11 +29,13 @@ class Bank:  # two lines need(PEP8: E302)
         response = requests.get(f"{self.api}", headers={'X-Api-Key': f"{self.api_key}"}, params={type: 'noun'})  # ": "
         if response.status_code == 200:
             word = json.loads(response.text)
-            # self.api_response_status = True "deleted"
+            self.api_response_status = True
             self.current_word = word['word']
+            for _ in self.current_word:  # changing 'i' with '_'
+                self.current_word_display.append('_')
         else:
             self.current_word = choice(self.topics[self.current_topic])
-            # self.api_response_status = False "deleted"
+            self.api_response_status = False
 
     def pick_word(self):
         self.current_word = choice(self.topics[self.current_topic])
@@ -69,7 +71,6 @@ class Processes:
         else:
             player.guess_validation_incomplete = False
 
-
     @staticmethod  # def seems to be static
     def check_answer_update_lives(bank, player):  # missing space after ','
         if player.answer in bank.letters_already_guessed:
@@ -99,9 +100,11 @@ class Main:  # two lines need(PEP8: E302)
         word_bank = Bank()
         player1 = Player()
         game = Processes()
-        
-        word_bank.pick_topic()
-        word_bank.pick_word()
+
+        word_bank.get_word()
+        if not word_bank.api_response_status:
+            word_bank.pick_topic()
+            word_bank.pick_word()
         player1.lives = 3 * len(word_bank.current_word)
 
         while word_bank.not_solved and player1.lives > 0:
